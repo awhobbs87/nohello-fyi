@@ -41,7 +41,7 @@ msgstr "Аватар Марини в Слаці"
 msgid "example.bad.title"
 msgstr "Не робіть так"
 
-# the placeholder is the year, i.e. "2022"
+# the placeholder is the current year, supplied dynamically
 msgid "example.bad.body"
 msgstr ""
 "Зверніть увагу, що Коля міг би отримати відповідь раніше, і йому не потрібно було змушувати Артема чекати. Більш того, Артем міг почати відразу ж думати над питанням!\n"

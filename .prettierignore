@@ -1,0 +1,7 @@
+build/
+node_modules/
+test-results/
+playwright-report/
+pnpm-lock.yaml
+locales/**/*.po
+src/css/styles.css

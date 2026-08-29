@@ -39,7 +39,7 @@ msgstr "道恩的 QQ 头像"
 msgid "example.bad.title"
 msgstr "❌ 不要这样做"
 
-# the placeholder is the year, i.e. "2022"
+# the placeholder is the current year, supplied dynamically
 msgid "example.bad.body"
 msgstr ""
 "请注意，这个场景中基思本可以提前几分钟得到答案，也不必让蒂姆等待，而蒂姆本来可以立刻开始思考这个问题。\n"

@@ -41,7 +41,7 @@ msgstr "آواتار اسلک داون"
 msgid "example.bad.title"
 msgstr "❌ این کار را نکنید"
 
-# the placeholder is the year, i.e. "2022"
+# the placeholder is the current year, supplied dynamically
 msgid "example.bad.body"
 msgstr ""
 "همانطور که می‌بینید «کیث» می‌توانست پاسخ خود را چند دقیقه زودتر بگیرد، و نیازی نبود که «تیم» را منتظر نگه‌دارد. در حقیقت، «تیم» می‌توانست به سوال فوراً فکر کند!\n"

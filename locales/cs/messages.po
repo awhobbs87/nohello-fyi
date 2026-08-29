@@ -41,7 +41,7 @@ msgstr "Dawnin avatar na Slacku"
 msgid "example.bad.title"
 msgstr "❌ Takhle to nedělejte"
 
-# the placeholder is the year, i.e. "2022"
+# the placeholder is the current year, supplied dynamically
 msgid "example.bad.body"
 msgstr ""
 "Uvědomte si že Keith mohl mít jeho odpověď o několik minut dříve, a nemusel zdržovat Tima. Tim vlastně mohl začít okamžitě přemýšlet o odpovědi!\n"

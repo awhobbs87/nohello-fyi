@@ -1,96 +1,36 @@
-import assert from 'assert';
-import { languageMatcher } from './../../src/js/languageMatcher';
+import { describe, expect, it } from 'vitest';
 import locales from '../../src/_data/locales.json';
+import { languageMatcher } from '../../src/lib/languageMatcher';
 
-const langs = locales.map((v) => v.path);
-const base = langs[0];
+const languages = locales.map(({ path }) => path);
+const fallback = languages[0] ?? 'en';
 
 describe('languageMatcher', () => {
-  describe('match to supported langs', () => {
-    it('unknown -> /en', () => {
-      const result = languageMatcher(langs, base, null);
+  it.each([
+    [undefined, undefined, '/en'],
+    [undefined, 'zz', '/en'],
+    [undefined, 'de', '/de'],
+    [undefined, 'en-AU', '/en'],
+    [undefined, 'zh', '/en'],
+    [undefined, 'zh-CN', '/zh-cn'],
+    [undefined, 'pt-BR', '/pt-br'],
+    [undefined, 'pt_BR', '/pt-br'],
+  ])(
+    'matches preferred=%s browser=%s to %s',
+    (preferred, browserLocale, expected) => {
+      expect(
+        languageMatcher(languages, fallback, preferred, browserLocale),
+      ).toBe(expected);
+    },
+  );
 
-      assert.equal(result, '/en');
-    });
-
-    it('zz -> /en', () => {
-      const result = languageMatcher(langs, base, undefined, 'zz');
-
-      assert.equal(result, '/en');
-    });
-
-    it('de -> /de', () => {
-      const result = languageMatcher(langs, base, undefined, 'de');
-
-      assert.equal(result, '/de');
-    });
-
-    it('en-AU -> en', () => {
-      const result = languageMatcher(langs, base, undefined, 'en-AU');
-
-      assert.equal(result, '/en');
-    });
-
-    it('zh -> /en', () => {
-      const result = languageMatcher(langs, base, undefined, 'zh');
-
-      assert.equal(result, '/en');
-    });
-
-    it('zh-cn -> /zh-cn', () => {
-      const result = languageMatcher(langs, base, undefined, 'zh-CN');
-
-      assert.equal(result, '/zh-cn');
-    });
-
-    it('pt-br -> /pt-br', () => {
-      const result = languageMatcher(langs, base, undefined, 'pt-BR');
-
-      assert.equal(result, '/pt-br');
-    });
-
-    it('pt-BR -> /pt-br', () => {
-      const result = languageMatcher(langs, base, undefined, 'pt-BR');
-
-      assert.equal(result, '/pt-br');
-    });
-
-    it('pt_BR -> /pt-br', () => {
-      const result = languageMatcher(langs, base, undefined, 'pt_BR');
-
-      assert.equal(result, '/pt-br');
-    });
-  });
-
-  describe('preferred language', () => {
-    it('unknown -> /en', () => {
-      const result = languageMatcher(langs, base, null);
-
-      assert.equal(result, '/en');
-    });
-
-    it('zz -> /en', () => {
-      const result = languageMatcher(langs, base, 'zz');
-
-      assert.equal(result, '/en');
-    });
-
-    it('en -> /en', () => {
-      const result = languageMatcher(langs, base, 'en');
-
-      assert.equal(result, '/en');
-    });
-
-    it('de -> /de', () => {
-      const result = languageMatcher(langs, base, 'de');
-
-      assert.equal(result, '/de');
-    });
-
-    it('pt-br -> /pt-br', () => {
-      const result = languageMatcher(langs, base, 'pt-br');
-
-      assert.equal(result, '/pt-br');
-    });
+  it.each([
+    [null, '/en'],
+    ['zz', '/en'],
+    ['en', '/en'],
+    ['de', '/de'],
+    ['pt-br', '/pt-br'],
+  ])('uses saved preference %s', (preferred, expected) => {
+    expect(languageMatcher(languages, fallback, preferred)).toBe(expected);
   });
 });

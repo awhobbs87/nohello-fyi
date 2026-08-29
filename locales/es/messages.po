@@ -41,7 +41,7 @@ msgstr "Avatar de Slack de Alba"
 msgid "example.bad.title"
 msgstr "❌ No hagas esto"
 
-# the placeholder is the year, i.e. "2022"
+# the placeholder is the current year, supplied dynamically
 msgid "example.bad.body"
 msgstr ""
 "Nótese que Bosco hubiera podido recibir su respuesta minutos antes, y no necesitaba haber dejado esperando a Tomás. De hecho, ¡Tomás podría haber empezado a pensar en la pregunta de inmediato!\n"

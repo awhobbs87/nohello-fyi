@@ -1,6 +1,5 @@
 import { test, expect } from '@playwright/test';
-import { BASE_URL } from './config';
-
+const BASE_URL = 'http://localhost:8124/';
 const url = (path = '') => `${BASE_URL}${path}`;
 
 test.describe('locale detection', () => {
@@ -62,8 +61,9 @@ test.describe('locale detection', () => {
     await page.goto(BASE_URL);
     expect(page.url()).toBe(url('en/'));
 
-    await page.locator('"Deutsch"').click();
-    expect(page.url()).toBe(url('de/'));
+    await page.locator('.language-picker summary').click();
+    await page.getByRole('link', { name: 'Deutsch' }).click();
+    await expect(page).toHaveURL(url('de/'));
 
     await page.goto(BASE_URL);
     expect(page.url()).toBe(url('de/'));
@@ -75,8 +75,9 @@ test.describe('locale detection', () => {
     await page.goto(BASE_URL);
     expect(page.url()).toBe(url('en/'));
 
-    await page.locator('"Deutsch"').click();
-    expect(page.url()).toBe(url('de/'));
+    await page.locator('.language-picker summary').click();
+    await page.getByRole('link', { name: 'Deutsch' }).click();
+    await expect(page).toHaveURL(url('de/'));
 
     await page.goto(url('fr/'));
     expect(page.url()).toBe(url('fr/'));

@@ -1,50 +1,53 @@
 # No Hello
 
-Hello!
+Please don't say just hello in chat: <https://nohello.net/>.
 
-https://nohello.net/
+This fork is an [Astro](https://astro.build/) static site with PO-based
+translations, Oxlint and Oxfmt checks, Vitest unit tests, and Playwright browser
+tests.
 
-## Translators
+## Requirements
 
-We've added language support to the site, but are still working out the best workflow for people to submit translations. (There's a small amount of manual work required on the code side!)
+- Node.js 24
+- pnpm 11.24.0 (declared in `package.json`)
 
-If you'd like to submit a translation, you can find us on [Transifex](https://www.transifex.com/nohello/nohellodotnet/). I _think_ you can suggest translations directly on their site without needing an invite to the organisation, but I'm not sure exactly. Let us know! Let's figure it out.
+With Corepack available, run `corepack enable` once. Otherwise install pnpm
+using its official installation instructions.
 
-Either way, open an issue on our GitHub repo, and we'll work out the best way to proceed :)
-
-## Programmers
-
-This project is a [Eleventy](https://www.11ty.dev/) site. If you've used a static site generator before, you're pretty much good to go. If not, take a look through the [Eleventy documentation](https://www.11ty.dev/docs/) to get up to speed.
-
-### Getting Started
-
-It's a JavaScript site, so you'll need `node` installed. Using [nvm](https://github.com/nvm-sh/nvm) will make sure you're using the right version.
+## Development
 
 ```sh
-# git clone, etc
-yarn        # install dependencies
-yarn serve  # run development server
+pnpm install --frozen-lockfile
+pnpm dev
 ```
 
-Then open [localhost:8123](http://localhost:8123/) in your browser, and you should be ready to disco.
+The site is served at <http://localhost:8123/>.
 
-### Making Changes
-
-Unit tests are via Mocha. Nothing too fancy there.
-
-We use UI tests via [Playwright](https://playwright.dev/). To ensure consistency, the snapshots are taken with a Linux container. To run this locally for convenience, you'll need two things installed: [Docker](https://docs.docker.com/desktop/mac/install/) and [act](https://github.com/nektos/act).
-
-Available commands:
+## Checks
 
 ```sh
-yarn check-snapshots  # do your snapshots match?
-yarn update-snapshots # if not, update your snapshots!
+pnpm build
+pnpm format
+pnpm lint
+pnpm test:unit
+pnpm exec playwright install chromium # first browser-test run only
+pnpm test:ui
 ```
 
-### Translations
+`pnpm install` configures the repository's pre-commit hook. The hook runs
+`pnpm lint`, which rejects formatting differences and any Oxlint warning,
+Oxlint error, or Astro diagnostic.
 
-- we use [Transifex](https://www.transifex.com/)
-- we use [Transifex CLI](https://github.com/transifex/cli/releases) (currently no `brew` package!)
-- the base language is English
+Oxfmt formats supported JavaScript ecosystem files. Astro files continue to
+use Prettier with `prettier-plugin-astro` because Oxfmt does not yet support the
+Astro file format.
 
-Changed base strings? `yarn strings:push`. Updated translations? `yarn strings:pull`.
+## Translations
+
+English is the source locale. Translation catalogs live in
+`locales/<locale>/messages.po`, while the available languages are declared in
+`src/_data/locales.json`.
+
+The project historically used Transifex. Before restoring automated
+synchronization, configure a Transifex resource for this fork and document its
+authentication in the deployment environment.

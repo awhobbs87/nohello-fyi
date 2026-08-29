@@ -1,0 +1,53 @@
+---
+import type { ImageMetadata } from 'astro';
+
+interface Props {
+  avatar: ImageMetadata;
+  avatarDescription: string;
+  name: string;
+  timestamp: string;
+  message: string;
+  usAvatar: ImageMetadata;
+  usAvatarDescription: string;
+  usName: string;
+  usMessage: string;
+}
+
+const {
+  avatar,
+  avatarDescription,
+  name,
+  timestamp,
+  message,
+  usAvatar,
+  usAvatarDescription,
+  usName,
+  usMessage,
+} = Astro.props;
+---
+
+<div class="slack">
+  <img
+    class="office-character office-character--uk"
+    src={avatar.src}
+    alt={avatarDescription}
+    width={avatar.width}
+    height={avatar.height}
+  />
+  <img
+    class="office-character office-character--us"
+    src={usAvatar.src}
+    alt={usAvatarDescription}
+    width={usAvatar.width}
+    height={usAvatar.height}
+  />
+  <span class="slack-content">
+    <span class="slack-meta">
+      <span class="slackname office-name--uk">{name}</span>
+      <span class="slackname office-name--us">{usName}</span>{' '}
+      <span class="slacktime">{timestamp}</span>
+    </span>
+    <span class="slackmessage office-message--uk">{message}</span>
+    <span class="slackmessage office-message--us">{usMessage}</span>
+  </span>
+</div>

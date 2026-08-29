@@ -1,0 +1,37 @@
+---
+import Layout from '../layouts/Layout.astro';
+import locales from '../_data/locales.json';
+import { loadTranslations } from '../lib/i18n';
+
+const fallback = locales[0]?.path ?? 'en';
+const { t } = loadTranslations(fallback);
+---
+
+<Layout lang="en" langDir="ltr" subtitle={t('header.subtitle')}>
+  <main
+    id="locale-redirect"
+    data-languages={JSON.stringify(locales.map(({ path }) => path))}
+    data-fallback={fallback}
+  >
+    <noscript>
+      <a href={`/${fallback}/`}>Continue to no hello</a>
+    </noscript>
+  </main>
+</Layout>
+
+<script>
+  import { languageMatcher } from '../lib/languageMatcher';
+
+  const redirect = document.querySelector<HTMLElement>('#locale-redirect');
+  const languages = JSON.parse(redirect?.dataset.languages ?? '[]') as string[];
+  const fallback = redirect?.dataset.fallback ?? languages[0] ?? 'en';
+  const preferred = localStorage.getItem('lang');
+  const destination = languageMatcher(
+    languages,
+    fallback,
+    preferred,
+    navigator.language,
+  );
+
+  window.location.replace(`${destination}/`);
+</script>

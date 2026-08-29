@@ -1,8 +1,7 @@
 [build]
-  publish = "build/"
-  command = "yarn build"
+publish = "build/"
+command = "pnpm build"
 
-[[plugins]]
-package = "netlify-plugin-cache"
-[plugins.inputs]
-  paths = ["build/img"]
+[build.environment]
+NODE_VERSION = "24"
+PNPM_VERSION = "11.24.0"

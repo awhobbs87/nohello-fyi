@@ -42,7 +42,7 @@ msgstr "Dawn'ın Slack fotoğrafı"
 msgid "example.bad.title"
 msgstr "❌ Bunu yapmayın"
 
-# the placeholder is the year, i.e. "2022"
+# the placeholder is the current year, supplied dynamically
 msgid "example.bad.body"
 msgstr ""
 "Keith'in cevabını dakikalar önce alabileceğini ve Tim'i bekletmesi gerekmediğini unutmayın. Aslında Tim soruyu hemen düşünmeye başlayabilirdi!\n"

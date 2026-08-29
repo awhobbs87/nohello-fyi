@@ -33,7 +33,7 @@ msgstr "Dawn's Slack avatar"
 msgid "example.bad.title"
 msgstr "❌ Don't do this"
 
-# the placeholder is the year, i.e. "2022"
+# the placeholder is the current year, supplied dynamically
 msgid "example.bad.body"
 msgstr ""
 "Note that Keith could have got his answer minutes sooner, and needn't have kept Tim waiting. In fact, Tim could have started thinking about the question right away!\n"
@@ -120,14 +120,14 @@ msgid "example.good.reply2.body"
 msgstr "👌 np"
 
 msgid "footer.note"
-msgstr "This is kinda only half serious (kinda 👀) so please don't get [mad](https://www.youtube.com/watch?v=xzpndHtdl9A) at the person who sent you here."
+msgstr "This page is a light-hearted nudge, not a rulebook. Please don't use it to call people out — assume good intent, be kind, and share it with a smile."
 
 msgid "footer.warning"
-msgstr "That said, if you see this sites URL as someone's status/bio, be prepared to be ignored if you only say \"Hello!\""
+msgstr "If someone shares this page, they probably just prefer the question up front. A quick hello and the question in the same message works perfectly."
 
 msgid "footer.thanks"
-msgstr "Based on the wonderful [nohello.com](https://web.archive.org/web/20131127020115/http://www.nohello.com/). Avatars taken from *[The Office](https://en.wikipedia.org/wiki/The_Office_(British_TV_series))*. Open-source on [GitHub](https://github.com/nohello-net/site)."
+msgstr "Based on the wonderful [nohello.com](https://web.archive.org/web/20131127020115/http://www.nohello.com/). Avatars feature characters from *[The Office](https://en.wikipedia.org/wiki/The_Office_(franchise))* (UK and US)."
 
 # prefix before a list of languages, i.e. This site is available in: English, French, & German
 msgid "footer.languages"
-msgstr "This site is available in:"
+msgstr "Choose a language:"

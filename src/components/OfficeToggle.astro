@@ -1,0 +1,45 @@
+<button
+  class="preference-toggle office-toggle"
+  type="button"
+  data-office-toggle
+  aria-label="Office: UK. Change office"
+  title="Office: UK"
+>
+  <span class="office-toggle__flag" data-office-flag aria-hidden="true">🇬🇧</span
+  >
+  <span data-office-label>UK</span>
+</button>
+
+<script>
+  type Office = 'uk' | 'us';
+
+  const toggle = document.querySelector<HTMLButtonElement>(
+    '[data-office-toggle]',
+  );
+  const flags: Record<Office, string> = { uk: '🇬🇧', us: '🇺🇸' };
+
+  function getOffice(): Office {
+    return document.documentElement.dataset.office === 'us' ? 'us' : 'uk';
+  }
+
+  function updateToggle(office: Office) {
+    if (toggle == null) return;
+
+    const label = office.toUpperCase();
+    toggle.querySelector<HTMLElement>('[data-office-label]')!.textContent =
+      label;
+    toggle.querySelector<HTMLElement>('[data-office-flag]')!.textContent =
+      flags[office];
+    toggle.ariaLabel = `Office: ${label}. Change office`;
+    toggle.title = `Office: ${label}`;
+  }
+
+  updateToggle(getOffice());
+
+  toggle?.addEventListener('click', () => {
+    const nextOffice: Office = getOffice() === 'uk' ? 'us' : 'uk';
+    document.documentElement.dataset.office = nextOffice;
+    localStorage.setItem('office', nextOffice);
+    updateToggle(nextOffice);
+  });
+</script>

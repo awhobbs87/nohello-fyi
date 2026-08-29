@@ -1,0 +1,394 @@
+---
+import ChatMessage from '../../components/ChatMessage.astro';
+import Layout from '../../layouts/Layout.astro';
+import locales from '../../_data/locales.json';
+import { loadTranslations } from '../../lib/i18n';
+import dawn from '../../img/dawn.png';
+import jim from '../../img/jim.jpg';
+import keith from '../../img/keith.png';
+import kevin from '../../img/kevin.jpg';
+import pam from '../../img/pam.png';
+import tim from '../../img/tim.png';
+import why from '../../img/why.gif';
+
+export function getStaticPaths() {
+  return locales.map((locale) => ({
+    params: { locale: locale.path },
+    props: { locale: locale.path },
+  }));
+}
+
+interface Props {
+  locale: string;
+}
+
+const { locale } = Astro.props;
+const { t, markdown, markdownBlock } = loadTranslations(locale);
+const lang = locale.split('-')[0] ?? locale;
+const langDir = ['fa', 'he'].includes(locale) ? 'rtl' : 'ltr';
+const currentYear = new Date().getFullYear().toString();
+const currentYearMarkup = `<span data-current-year>${currentYear}</span>`;
+const officeCharacters = {
+  bad: {
+    usAvatar: kevin,
+    usAvatarDescription: "Kevin's chat avatar",
+    usName: 'Kevin',
+  },
+  neutral: {
+    usAvatar: jim,
+    usAvatarDescription: "Jim's chat avatar",
+    usName: 'Jim',
+  },
+  good: {
+    usAvatar: pam,
+    usAvatarDescription: "Pam's chat avatar",
+    usName: 'Pam',
+  },
+};
+const badExampleUk = await markdownBlock('example.bad.body', currentYearMarkup);
+const currentLocale =
+  locales.find((item) => item.path === locale) ?? locales[0]!;
+const badExampleUs = badExampleUk
+  .replaceAll(t('example.character.bad.name'), officeCharacters.bad.usName)
+  .replaceAll(
+    t('example.character.neutral.name'),
+    officeCharacters.neutral.usName,
+  );
+const usConversation =
+  locale === 'en'
+    ? {
+        badMessage1: 'Hey, Jim.',
+        badReply1: '...?',
+        badMessage2:
+          'Do you remember what time that meeting is? I wrote it down somewhere.',
+        badReply2: '3:30, Kevin.',
+        goodMessage1:
+          "Hey Jim! Do you know what time Michael's meeting is? I lost my sticky note.",
+        goodReply1:
+          "3:30. Want me to forward the invite so you can pretend you're working?",
+        goodMessage2: 'Yes please!',
+        goodReply2: 'Sent 👍 (it\'s titled "Urgent Paper Audit")',
+      }
+    : {
+        badMessage1: t('example.bad.message1.body'),
+        badReply1: t('example.bad.reply1.body'),
+        badMessage2: t('example.bad.message2.body'),
+        badReply2: t('example.bad.reply2.body'),
+        goodMessage1: t('example.good.message1.body'),
+        goodReply1: t('example.good.reply1.body'),
+        goodMessage2: t('example.good.message2.body'),
+        goodReply2: t('example.good.reply2.body'),
+      };
+---
+
+<Layout lang={lang} langDir={langDir} subtitle={t('header.subtitle')}>
+  <div id="wholesite">
+    <main>
+      <div class="container">
+        <div class="hero">
+          <div id="plsstop">
+            <h1 class="name">no <span id="strike">hello</span></h1>
+          </div>
+          <span class="subtitle">{t('header.subtitle')}</span>
+          <h2 class="lead" set:html={markdown('header.introduction')} />
+        </div>
+      </div>
+
+      <div class="container nonos">
+        <div class="sections sectionleft">
+          <h2 class="section-title">
+            <span class="office-title--uk">{t('example.bad.title')}</span>
+            <span class="office-title--us">❌ Don&apos;t try this</span>
+          </h2>
+          <div class="list-card example one">
+            <ChatMessage
+              {...officeCharacters.bad}
+              avatar={keith}
+              avatarDescription={t('example.character.bad.avatar-description')}
+              name={t('example.character.bad.name')}
+              timestamp={t('example.bad.message1.timestamp')}
+              message={t('example.bad.message1.body')}
+              usMessage={usConversation.badMessage1}
+            />
+            <ChatMessage
+              {...officeCharacters.neutral}
+              avatar={tim}
+              avatarDescription={t(
+                'example.character.neutral.avatar-description',
+              )}
+              name={t('example.character.neutral.name')}
+              timestamp={t('example.bad.reply1.timestamp')}
+              message={t('example.bad.reply1.body')}
+              usMessage={usConversation.badReply1}
+            />
+            <ChatMessage
+              {...officeCharacters.bad}
+              avatar={keith}
+              avatarDescription={t('example.character.bad.avatar-description')}
+              name={t('example.character.bad.name')}
+              timestamp={t('example.bad.message2.timestamp')}
+              message={t('example.bad.message2.body')}
+              usMessage={usConversation.badMessage2}
+            />
+            <ChatMessage
+              {...officeCharacters.neutral}
+              avatar={tim}
+              avatarDescription={t(
+                'example.character.neutral.avatar-description',
+              )}
+              name={t('example.character.neutral.name')}
+              timestamp={t('example.bad.reply2.timestamp')}
+              message={t('example.bad.reply2.body')}
+              usMessage={usConversation.badReply2}
+            />
+          </div>
+        </div>
+        <div class="sections sectionright">
+          <div class="list-card">
+            <div class="office-copy--uk" set:html={badExampleUk} />
+            <div class="office-copy--us" set:html={badExampleUs} />
+          </div>
+        </div>
+      </div>
+
+      <div class="container yepyep">
+        <div class="sections sectionleft">
+          <h2 class="section-title yepyep">{t('example.good.title')}</h2>
+          <div class="list-card example two">
+            <ChatMessage
+              {...officeCharacters.good}
+              avatar={dawn}
+              avatarDescription={t('example.character.good.avatar-description')}
+              name={t('example.character.good.name')}
+              timestamp={t('example.good.message1.timestamp')}
+              message={t('example.good.message1.body')}
+              usMessage={usConversation.goodMessage1}
+            />
+            <ChatMessage
+              {...officeCharacters.neutral}
+              avatar={tim}
+              avatarDescription={t(
+                'example.character.neutral.avatar-description',
+              )}
+              name={t('example.character.neutral.name')}
+              timestamp={t('example.good.reply1.timestamp')}
+              message={t('example.good.reply1.body')}
+              usMessage={usConversation.goodReply1}
+            />
+            <ChatMessage
+              {...officeCharacters.good}
+              avatar={dawn}
+              avatarDescription={t('example.character.good.avatar-description')}
+              name={t('example.character.good.name')}
+              timestamp={t('example.good.message2.timestamp')}
+              message={t('example.good.message2.body')}
+              usMessage={usConversation.goodMessage2}
+            />
+            <ChatMessage
+              {...officeCharacters.neutral}
+              avatar={tim}
+              avatarDescription={t(
+                'example.character.neutral.avatar-description',
+              )}
+              name={t('example.character.neutral.name')}
+              timestamp={t('example.good.reply2.timestamp')}
+              message={t('example.good.reply2.body')}
+              usMessage={usConversation.goodReply2}
+            />
+          </div>
+        </div>
+        <div class="sections sectionright">
+          <div class="list-card">
+            <div set:html={markdownBlock('example.good.body')} />
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <footer>
+      <p set:html={markdown('footer.note')} />
+      <p set:html={markdown('footer.warning')} />
+      <p set:html={markdown('footer.thanks')} />
+
+      <section class="other-languages">
+        <span class="language-label">{t('footer.languages')}</span>
+        <details class="language-picker">
+          <summary>
+            <span>{currentLocale.name}</span>
+            <span class="language-picker__chevron" aria-hidden="true">⌃</span>
+          </summary>
+          <nav class="language-picker__menu" aria-label={t('footer.languages')}>
+            {
+              locales.map((otherLocale) => (
+                <a
+                  href={`/${otherLocale.path}/`}
+                  class="lang-chooser"
+                  data-lang={otherLocale.path}
+                  lang={otherLocale.path}
+                  hreflang={otherLocale.path}
+                  aria-current={
+                    otherLocale.path === locale ? 'page' : undefined
+                  }
+                >
+                  {otherLocale.name}
+                  {otherLocale.path === locale && (
+                    <span aria-hidden="true">✓</span>
+                  )}
+                </a>
+              ))
+            }
+          </nav>
+        </details>
+      </section>
+    </footer>
+  </div>
+
+  <img
+    id="preloadimg"
+    src={why.src}
+    alt=""
+    width={why.width}
+    height={why.height}
+    aria-hidden="true"
+  />
+</Layout>
+
+<style>
+  #preloadimg {
+    display: none;
+  }
+</style>
+
+<script>
+  import Typed from 'typed.js';
+
+  const currentYear = new Date().getFullYear().toString();
+  for (const year of document.querySelectorAll<HTMLElement>(
+    '[data-current-year]',
+  )) {
+    year.textContent = currentYear;
+  }
+
+  const strike = document.querySelector('#strike');
+  if (strike != null) {
+    const typed = new Typed(strike, {
+      strings: [
+        'hello',
+        'hi',
+        'hey',
+        "g'day",
+        'bonjour',
+        'yo',
+        'hola',
+        'morning!',
+        'hallo',
+        'ciao',
+        '&#128075;',
+        'namaste',
+        'hoi',
+        "m'athchomaroon",
+        'hiya',
+        'Привет',
+        'you got a sec?',
+        'مرحبا',
+        'greetings!',
+        'aloha',
+        'こんにちは',
+        'buenos dias',
+        'nuqneH',
+        'heya',
+        'olà',
+        'apipoulaï',
+        'j0',
+        'howdy',
+        'שלום',
+        'yooooooooooo!',
+        '你好',
+        '在吗？',
+        'you there?',
+        'fraeslis',
+        '여보세요',
+        'sul sul',
+        'quick question...',
+        'achuta',
+        'ਸਤ ਸ੍ਰੀ ਅਕਾਲ',
+        'ping',
+        'Χαίρετε',
+        'سلام',
+      ],
+      typeSpeed: 80,
+      backSpeed: 60,
+      smartBackspace: false,
+      loop: true,
+      shuffle: false,
+      backDelay: 2000,
+      startDelay: 3000,
+    });
+
+    typed.cursor?.classList.add('typed-cursor--blink');
+  }
+
+  for (const chooser of document.querySelectorAll<HTMLElement>(
+    '.lang-chooser',
+  )) {
+    chooser.addEventListener('click', () => {
+      const language = chooser.dataset.lang;
+      if (language != null) localStorage.setItem('lang', language);
+    });
+  }
+
+  const sequence = ['h', 'e', 'l', 'l', 'o'];
+  let position = 0;
+
+  function activateWhy() {
+    const preload = document.querySelector<HTMLImageElement>('#preloadimg');
+    if (preload != null) {
+      document.body.style.backgroundImage = `url("${preload.src}")`;
+    }
+    document.body.style.backgroundSize = 'cover';
+
+    const elements = [
+      document.querySelector('#wholesite'),
+      ...document.querySelectorAll('p, ul'),
+    ];
+    for (const element of elements) {
+      if (element instanceof HTMLElement) {
+        element.style.setProperty('color', 'white', 'important');
+      }
+    }
+
+    document
+      .querySelector('footer')
+      ?.setAttribute(
+        'style',
+        'background: linear-gradient(180deg, transparent 0%, rgba(0,0,0,.3) 45%) !important; color: white !important',
+      );
+
+    for (const card of document.querySelectorAll<HTMLElement>('.one, .two')) {
+      card.style.setProperty(
+        'box-shadow',
+        '-20px 20px 60px #000, 20px -20px 60px #000',
+        'important',
+      );
+    }
+
+    const subtitle = document.querySelector<HTMLElement>('.subtitle');
+    subtitle?.style.setProperty('color', 'white', 'important');
+    subtitle?.style.setProperty('opacity', '50%');
+  }
+
+  document.addEventListener('keydown', (event) => {
+    if (event.key !== sequence[position]) {
+      position = 0;
+      return;
+    }
+
+    position += 1;
+    if (position === sequence.length) {
+      activateWhy();
+      position = 0;
+    } else if (position === 2) {
+      document.querySelector('#preloadimg')?.classList.add('now');
+    }
+  });
+</script>

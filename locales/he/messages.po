@@ -40,7 +40,7 @@ msgstr "התמונה של יעל בסלאק"
 msgid "example.bad.title"
 msgstr "❌ לא לעשות ככה"
 
-# the placeholder is the year, i.e. "2022"
+# the placeholder is the current year, supplied dynamically
 msgid "example.bad.body"
 msgstr ""
 "נא לשים לב שטל יכול היה לקבל את התשובה הרבה לפני כן, ולא היה צריך להמתין לאלי. למעשה, אלי יכול היה לחשוב על השאלה שלו באותו רגע!\n"

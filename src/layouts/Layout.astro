@@ -1,0 +1,82 @@
+---
+import appleTouchIcon from '../img/apple-touch-icon.png';
+import favicon from '../img/favicon.png';
+import socialImage from '../img/newmeta.png';
+import '../css/styles.css';
+import locales from '../_data/locales.json';
+import OfficeToggle from '../components/OfficeToggle.astro';
+import ThemeToggle from '../components/ThemeToggle.astro';
+
+interface Props {
+  lang: string;
+  langDir: 'ltr' | 'rtl';
+  subtitle: string;
+  title?: string;
+}
+
+const { lang, langDir, subtitle, title } = Astro.props;
+const fullTitle = [title, 'no hello'].filter(Boolean).join(' - ');
+const site = Astro.site ?? new URL('https://nohello.net');
+const canonicalUrl = new URL(Astro.url.pathname, site);
+const socialImageUrl = new URL(socialImage.src, site);
+---
+
+<!doctype html>
+<html lang={lang} dir={langDir}>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{fullTitle}</title>
+    <meta name="title" content={fullTitle} />
+    <meta name="description" content={subtitle} />
+    <link rel="canonical" href={canonicalUrl} />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content={canonicalUrl} />
+    <meta property="og:title" content={fullTitle} />
+    <meta property="og:description" content={subtitle} />
+    <meta property="og:image" content={socialImageUrl} />
+
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content={fullTitle} />
+    <meta name="twitter:description" content={subtitle} />
+    <meta name="twitter:image" content={socialImageUrl} />
+
+    <link rel="apple-touch-icon" href={appleTouchIcon.src} />
+    <link rel="icon" href={favicon.src} type="image/png" />
+
+    {
+      locales.map((locale) => (
+        <link
+          rel="alternate"
+          hreflang={locale.path}
+          href={new URL(`/${locale.path}/`, site)}
+        />
+      ))
+    }
+    <link rel="alternate" hreflang="x-default" href={site} />
+
+    <script is:inline>
+      (() => {
+        const savedTheme = localStorage.getItem('theme');
+        document.documentElement.dataset.theme = matchMedia(
+          '(max-width: 600px)',
+        ).matches
+          ? 'system'
+          : savedTheme === 'light' || savedTheme === 'dark'
+            ? savedTheme
+            : 'system';
+
+        document.documentElement.dataset.office =
+          localStorage.getItem('office') === 'us' ? 'us' : 'uk';
+      })();
+    </script>
+  </head>
+  <body>
+    <div class="preference-controls">
+      <OfficeToggle />
+      <ThemeToggle />
+    </div>
+    <slot />
+  </body>
+</html>

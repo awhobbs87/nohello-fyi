@@ -1,0 +1,76 @@
+<button
+  class="preference-toggle theme-toggle"
+  type="button"
+  data-theme-toggle
+  aria-label="Theme: system. Change theme"
+  title="Theme: system"
+>
+  <span class="theme-toggle__icon" data-theme-icon aria-hidden="true">◐</span>
+  <span data-theme-label>System</span>
+</button>
+
+<script>
+  type Theme = 'system' | 'light' | 'dark';
+
+  const themes: Theme[] = ['system', 'light', 'dark'];
+  const labels: Record<Theme, string> = {
+    system: 'System',
+    light: 'Light',
+    dark: 'Dark',
+  };
+  const icons: Record<Theme, string> = {
+    system: '◐',
+    light: '☀',
+    dark: '☾',
+  };
+
+  const toggle = document.querySelector<HTMLButtonElement>(
+    '[data-theme-toggle]',
+  );
+  const mobileTheme = matchMedia('(max-width: 600px)');
+
+  function getSavedTheme(): Theme {
+    const savedTheme = localStorage.getItem('theme');
+    return themes.includes(savedTheme as Theme)
+      ? (savedTheme as Theme)
+      : 'system';
+  }
+
+  function getTheme(): Theme {
+    const theme = document.documentElement.dataset.theme;
+    return themes.includes(theme as Theme) ? (theme as Theme) : 'system';
+  }
+
+  function updateToggle(theme: Theme) {
+    if (toggle == null) return;
+
+    const label = labels[theme];
+    toggle.querySelector<HTMLElement>('[data-theme-label]')!.textContent =
+      label;
+    toggle.querySelector<HTMLElement>('[data-theme-icon]')!.textContent =
+      icons[theme];
+    toggle.ariaLabel = `Theme: ${label.toLowerCase()}. Change theme`;
+    toggle.title = `Theme: ${label.toLowerCase()}`;
+  }
+
+  function applyThemeForViewport() {
+    const theme = mobileTheme.matches ? 'system' : getSavedTheme();
+    document.documentElement.dataset.theme = theme;
+    updateToggle(theme);
+  }
+
+  applyThemeForViewport();
+  mobileTheme.addEventListener('change', applyThemeForViewport);
+
+  toggle?.addEventListener('click', () => {
+    if (mobileTheme.matches) return;
+
+    const currentTheme = getTheme();
+    const nextTheme =
+      themes[(themes.indexOf(currentTheme) + 1) % themes.length]!;
+
+    document.documentElement.dataset.theme = nextTheme;
+    localStorage.setItem('theme', nextTheme);
+    updateToggle(nextTheme);
+  });
+</script>

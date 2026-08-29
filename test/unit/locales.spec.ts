@@ -1,61 +1,28 @@
-import assert from 'assert';
-import fs from 'fs';
+import fs from 'node:fs';
+import { describe, expect, it } from 'vitest';
 import locales from '../../src/_data/locales.json';
+import {
+  loadTranslations,
+  REQUIRED_TRANSLATION_KEYS,
+} from '../../src/lib/i18n';
 
-describe('Locales', () => {
-  const base = locales[0];
-
-  it('base locale should always be English', () => {
-    assert.notEqual(base, null);
-    assert.deepEqual(base, {
-      path: 'en',
-      name: 'English',
-    });
+describe('locales', () => {
+  it('uses English as the fallback locale', () => {
+    expect(locales[0]).toEqual({ path: 'en', name: 'English' });
   });
 
-  for (const locale of locales) {
-    describe(`Locale: ${locale.name}`, () => {
-      const messagesPoPath = `locales/${locale.path}/messages.po`;
+  it.each(locales)('$name has a complete PO catalog', ({ path }) => {
+    expect(fs.existsSync(`locales/${path}/messages.po`)).toBe(true);
 
-      describe('messages.po', () => {
-        it('exists', () => {
-          const result = fs.existsSync(messagesPoPath);
-          assert.equal(result, true);
-        });
-      });
+    const { t } = loadTranslations(path);
+    for (const key of REQUIRED_TRANSLATION_KEYS) {
+      expect(t(key)).not.toBe(key);
+      expect(t(key).length).toBeGreaterThan(0);
+    }
+  });
 
-      describe('src/<lang>/ folder', () => {
-        it('11tydata.ts exists', () => {
-          const path = `src/${locale.path}/${locale.path}.11tydata.ts`;
-          const result = fs.existsSync(path);
-          assert.equal(result, true);
-        });
-
-        it('index.njk exists', () => {
-          const path = `src/${locale.path}/index.njk`;
-          const result = fs.existsSync(path);
-          assert.equal(result, true);
-        });
-      });
-
-      describe('translation strings', () => {
-        const messagesjs = fs.readFileSync('locales/messages.js', 'utf-8');
-        const messagespo = fs.readFileSync(messagesPoPath, 'utf-8');
-
-        // search for strings that look like: _("key")
-        const keys = [...messagesjs.matchAll(/_\(['"](.*)['"]\)/g)].map(
-          (match) => match[1]
-        );
-
-        for (const key of keys) {
-          it(`contains key: ${key}`, () => {
-            const found = messagespo.match(new RegExp(`msgid "${key}"`, 'g'));
-
-            assert.notEqual(found, null);
-            assert.equal(found?.length, 1);
-          });
-        }
-      });
-    });
-  }
+  it('interpolates positional values', () => {
+    const { t } = loadTranslations('en');
+    expect(t('example.bad.body', 2099)).toContain('2099');
+  });
 });

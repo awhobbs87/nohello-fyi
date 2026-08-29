@@ -6,57 +6,49 @@ on:
   pull_request:
     branches: [main]
 
-env:
-  FC_DEBUG: 1
+permissions:
+  contents: read
 
 jobs:
-  unit-test:
+  checks:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-node@v2
-        with:
-          node-version-file: '.nvmrc'
-          cache: 'yarn'
-      - run: yarn install
-      - run: yarn test:unit
+      - name: Check out repository
+        uses: actions/checkout@v6
 
-  ui-test:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-node@v2
+      - name: Install pnpm
+        uses: pnpm/action-setup@v6
+
+      - name: Install Node.js
+        uses: actions/setup-node@v7
         with:
-          node-version-file: '.nvmrc'
-          cache: 'yarn'
-      - run: yarn install
-      - run: npx playwright install --with-deps chromium
-      - run: fc-list
-      - run: yarn ci:ui
-      - uses: actions/upload-artifact@v2
+          node-version-file: .nvmrc
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Check formatting and types
+        run: pnpm lint
+
+      - name: Run unit tests
+        run: pnpm test:unit
+
+      - name: Build static site
+        run: pnpm build
+
+      - name: Install Chromium
+        run: pnpm exec playwright install --with-deps chromium
+
+      - name: Run browser tests
+        run: pnpm test:ui
+
+      - name: Upload browser-test report
         if: always()
+        uses: actions/upload-artifact@v7
         with:
-          name: ui-test-results
-          path: test-results/
-
-  lint:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-node@v2
-        with:
-          node-version-file: '.nvmrc'
-          cache: 'yarn'
-      - run: yarn install
-      - run: yarn lint
-
-  typecheck:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-node@v2
-        with:
-          node-version-file: '.nvmrc'
-          cache: 'yarn'
-      - run: yarn install
-      - run: yarn typecheck
+          name: playwright-report
+          path: playwright-report/
+          if-no-files-found: ignore
+          retention-days: 7

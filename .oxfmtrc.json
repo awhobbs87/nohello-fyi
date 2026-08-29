@@ -1,0 +1,14 @@
+{
+  "$schema": "./node_modules/oxfmt/configuration_schema.json",
+  "printWidth": 80,
+  "singleQuote": true,
+  "sortPackageJson": false,
+  "ignorePatterns": [
+    "build/**",
+    "node_modules/**",
+    "playwright-report/**",
+    "test-results/**",
+    "locales/**/*.po",
+    "src/**/*.astro"
+  ]
+}

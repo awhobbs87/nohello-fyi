@@ -1,5 +1,185 @@
 import { test, expect } from '@playwright/test';
-import { BASE_URL } from './config';
+const BASE_URL = 'http://localhost:8124/';
+
+test('updates the build-time year to the visitor current year', async ({
+  page,
+}) => {
+  await page.clock.install({ time: new Date('2099-06-15T12:00:00Z') });
+  await page.goto(`${BASE_URL}en/`);
+
+  await expect(page.locator('[data-current-year]')).toHaveText([
+    '2099',
+    '2099',
+  ]);
+});
+
+test('cycles and persists system, light, and dark themes', async ({ page }) => {
+  await page.goto(`${BASE_URL}en/`);
+  const toggle = page.getByRole('button', { name: /theme:/i });
+
+  await expect(page.locator('html')).toHaveAttribute('data-theme', 'system');
+  await expect(toggle).toContainText('System');
+
+  await toggle.click();
+  await expect(page.locator('html')).toHaveAttribute('data-theme', 'light');
+  await expect(toggle).toContainText('Light');
+
+  await toggle.click();
+  await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
+  await expect(toggle).toContainText('Dark');
+
+  await page.reload();
+  await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
+  await expect(toggle).toContainText('Dark');
+
+  await toggle.click();
+  await expect(page.locator('html')).toHaveAttribute('data-theme', 'system');
+});
+
+test('dark theme color tokens meet WCAG AA contrast', async ({ page }) => {
+  await page.goto(`${BASE_URL}en/`);
+  const toggle = page.getByRole('button', { name: /theme:/i });
+  await toggle.click();
+  await toggle.click();
+
+  const ratios = await page.locator('html').evaluate((html) => {
+    const styles = getComputedStyle(html);
+    const color = (name: string) => styles.getPropertyValue(`--${name}`).trim();
+    // oxlint-disable-next-line unicorn/consistent-function-scoping -- Playwright serializes this function with its closure.
+    const luminance = (hex: string) => {
+      const channels = hex
+        .match(/[a-f\d]{2}/gi)!
+        .map((channel) => Number.parseInt(channel, 16) / 255)
+        .map((channel) =>
+          channel <= 0.04045
+            ? channel / 12.92
+            : ((channel + 0.055) / 1.055) ** 2.4,
+        );
+      return (
+        0.2126 * channels[0]! + 0.7152 * channels[1]! + 0.0722 * channels[2]!
+      );
+    };
+    const contrast = (foreground: string, background: string) => {
+      const foregroundLuminance = luminance(color(foreground));
+      const backgroundLuminance = luminance(color(background));
+      return (
+        (Math.max(foregroundLuminance, backgroundLuminance) + 0.05) /
+        (Math.min(foregroundLuminance, backgroundLuminance) + 0.05)
+      );
+    };
+
+    return {
+      body: contrast('body-text', 'page-background'),
+      mutedCard: contrast('muted-text', 'card-background'),
+      link: contrast('link', 'page-background'),
+      danger: contrast('danger', 'page-background'),
+      success: contrast('success', 'page-background'),
+    };
+  });
+
+  for (const ratio of Object.values(ratios)) expect(ratio).toBeGreaterThan(4.5);
+});
+
+test('uses system theme and a ghost flag control on mobile', async ({
+  page,
+}) => {
+  await page.goto(`${BASE_URL}en/`);
+  const themeToggle = page.getByRole('button', { name: /theme:/i });
+  await themeToggle.click();
+  await themeToggle.click();
+  await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
+
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.reload();
+
+  const officeToggle = page.getByRole('button', { name: /office:/i });
+  await expect(page.locator('html')).toHaveAttribute('data-theme', 'system');
+  await expect(themeToggle).toBeHidden();
+  await expect(officeToggle).toBeVisible();
+  await expect(officeToggle.locator('[data-office-label]')).toBeHidden();
+  await expect(page.locator('.preference-controls')).toHaveCSS(
+    'position',
+    'static',
+  );
+  await expect(page.locator('.preference-controls')).toHaveCSS(
+    'background-color',
+    'rgba(0, 0, 0, 0)',
+  );
+
+  await officeToggle.click();
+  await expect(officeToggle).toContainText('🇺🇸');
+
+  await expect(page.locator('.slack').first()).toHaveCSS('display', 'grid');
+  const avatarBox = await page
+    .locator('.slack img:visible')
+    .first()
+    .boundingBox();
+  const contentBox = await page.locator('.slack-content').first().boundingBox();
+  expect(contentBox!.x).toBeGreaterThanOrEqual(avatarBox!.x + avatarBox!.width);
+});
+
+test('changes locale from the footer language menu', async ({ page }) => {
+  await page.goto(`${BASE_URL}en/`);
+  const languagePicker = page.locator('.language-picker');
+
+  await expect(languagePicker.locator('summary')).toContainText('English');
+  await languagePicker.locator('summary').click();
+  await expect(languagePicker).toHaveAttribute('open', '');
+  await expect(languagePicker.locator('nav')).toHaveCSS('bottom', '52px');
+  await page.getByRole('link', { name: 'Français' }).click();
+  await expect(page).toHaveURL(`${BASE_URL}fr/`);
+  await expect(page.locator('.language-picker summary')).toContainText(
+    'Français',
+  );
+});
+
+test('switches and persists UK and US office characters', async ({ page }) => {
+  await page.goto(`${BASE_URL}en/`);
+  const toggle = page.getByRole('button', { name: /office:/i });
+
+  await expect(page.locator('html')).toHaveAttribute('data-office', 'uk');
+  await expect(toggle).toContainText('🇬🇧UK');
+  await expect(page.getByText('Keith', { exact: true }).first()).toBeVisible();
+  await expect(page.getByText('Kevin', { exact: true }).first()).toBeHidden();
+
+  await toggle.click();
+  await expect(page.locator('html')).toHaveAttribute('data-office', 'us');
+  await expect(toggle).toContainText('🇺🇸US');
+  await expect(page.getByText('Kevin', { exact: true }).first()).toBeVisible();
+  await expect(page.getByText('Keith', { exact: true }).first()).toBeHidden();
+  await expect(page.getByAltText("Kevin's chat avatar").first()).toBeVisible();
+  await expect(
+    page.getByText(/Kevin could have got his answer minutes sooner/),
+  ).toBeVisible();
+  await expect(page.getByText(/I wrote it down somewhere/)).toBeVisible();
+  await expect(
+    page.getByRole('heading', { name: "❌ Don't try this" }),
+  ).toBeVisible();
+  await expect(
+    page.getByText(/Michael's meeting is\? I lost my sticky note/),
+  ).toBeVisible();
+  await expect(
+    page.getByText(/forward the invite so you can pretend you're working/),
+  ).toBeVisible();
+  await expect(page.getByText('Yes please!', { exact: true })).toBeVisible();
+  await expect(page.getByText(/Urgent Paper Audit/)).toBeVisible();
+
+  await page.reload();
+  await expect(page.locator('html')).toHaveAttribute('data-office', 'us');
+  await expect(toggle).toContainText('US');
+
+  await toggle.click();
+  await expect(page.locator('html')).toHaveAttribute('data-office', 'uk');
+});
+
+test('frames the guidance as a light-hearted nudge', async ({ page }) => {
+  await page.goto(`${BASE_URL}en/`);
+
+  await expect(
+    page.getByText(/light-hearted nudge, not a rulebook/),
+  ).toBeVisible();
+  await expect(page.getByText(/assume good intent, be kind/)).toBeVisible();
+});
 
 test.describe('index snapshots', () => {
   test.beforeEach(async ({ page }) => {
@@ -7,21 +187,31 @@ test.describe('index snapshots', () => {
 
     // pause cursor blinking, otherwise snapshots can differ :(
     await page.$eval('.typed-cursor', (el) =>
-      el.classList.remove('typed-cursor--blink')
+      el.classList.remove('typed-cursor--blink'),
     );
   });
 
-  test('page looks the same', async ({ page }) => {
-    const screenshot = await page.screenshot({ fullPage: true });
-    expect(screenshot).toMatchSnapshot('index.png', {
-      threshold: 0.05,
-    });
+  test('renders the core page layout', async ({ page }) => {
+    await expect(page.getByRole('heading', { level: 1 })).toContainText('no');
+    await expect(page.locator('.nonos .list-card.example')).toBeVisible();
+    await expect(page.locator('.yepyep .list-card.example')).toBeVisible();
+    await expect(page.locator('.preference-controls')).toBeVisible();
+    await expect(page.locator('footer')).toBeVisible();
   });
 
   test('why', async ({ page }) => {
+    await page
+      .locator('#preloadimg')
+      .evaluate((image: HTMLImageElement) => image.decode());
     await page.keyboard.type('hello');
 
-    const screenshot = await page.screenshot();
-    expect(screenshot).toMatchSnapshot('why.png', { threshold: 0.05 });
+    await expect(page.locator('body')).toHaveCSS(
+      'background-image',
+      /why.*\.gif/,
+    );
+    await expect(page.locator('.subtitle')).toHaveCSS(
+      'color',
+      'rgb(255, 255, 255)',
+    );
   });
 });

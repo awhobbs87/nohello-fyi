@@ -1,6 +1,8 @@
 build/
 build-artifacts/
 test-results/
+playwright-report/
+.astro/
 workflow/
 
 test/ui/**/*-darwin.png
@@ -175,4 +177,3 @@ dist
 # .pnp.*
 
 # End of https://www.toptal.com/developers/gitignore/api/macos,node,yarn
-
