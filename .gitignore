@@ -4,6 +4,9 @@ test-results/
 playwright-report/
 .astro/
 workflow/
+.wrangler/
+.dev.vars*
+!.dev.vars.example
 
 test/ui/**/*-darwin.png
 

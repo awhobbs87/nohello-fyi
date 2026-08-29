@@ -1,5 +1,8 @@
 allowBuilds:
   esbuild: true
   simple-git-hooks: true
+  workerd: true
 minimumReleaseAgeExclude:
   - simple-git-hooks@2.14.0
+  - miniflare@5.20260828.0-alpha
+  - wrangler@4.127.1

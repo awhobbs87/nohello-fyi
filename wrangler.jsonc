@@ -1,0 +1,9 @@
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  "name": "nohello-fyi",
+  "compatibility_date": "2026-08-29",
+  "assets": {
+    "directory": "./build",
+    "html_handling": "auto-trailing-slash",
+  },
+}

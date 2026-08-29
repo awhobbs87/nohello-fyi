@@ -18,7 +18,9 @@
     "dev": "astro dev --port 8123",
     "serve": "astro dev --port 8123",
     "build": "astro build",
+    "deploy": "pnpm build && wrangler deploy",
     "preview": "astro preview --port 8123",
+    "preview:cloudflare": "pnpm build && wrangler dev",
     "format": "oxfmt --ignore-path .oxfmtignore . && prettier --write \"src/**/*.astro\"",
     "format:check": "oxfmt --ignore-path .oxfmtignore --check . && prettier --check \"src/**/*.astro\"",
     "lint": "pnpm format:check && pnpm lint:oxlint && pnpm typecheck",
@@ -55,6 +57,7 @@
     "serve": "14.2.6",
     "simple-git-hooks": "2.14.0",
     "typescript": "6.0.3",
-    "vitest": "4.1.11"
+    "vitest": "4.1.11",
+    "wrangler": "4.127.1"
   }
 }
