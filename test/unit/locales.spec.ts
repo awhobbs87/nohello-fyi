@@ -8,7 +8,17 @@ import {
 
 describe('locales', () => {
   it('uses English as the fallback locale', () => {
-    expect(locales[0]).toEqual({ path: 'en', name: 'English' });
+    expect(locales[0]).toEqual({
+      path: 'en',
+      name: 'English',
+      flag: '🇬🇧',
+    });
+  });
+
+  it('provides a flag for every locale', () => {
+    for (const locale of locales) {
+      expect(locale.flag).toMatch(/^\p{Regional_Indicator}{2}$/u);
+    }
   });
 
   it.each(locales)('$name has a complete PO catalog', ({ path }) => {

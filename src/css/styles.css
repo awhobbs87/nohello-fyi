@@ -19,6 +19,8 @@
   --control-border: #d7dae2;
   --control-shadow: rgba(4, 20, 58, 0.15);
   --control-hover: rgba(11, 97, 164, 0.1);
+  --language-hover: #d7ebfc;
+  --language-hover-border: #0b61a4;
   --control-active: rgba(255, 255, 255, 0.82);
   --link: #0b61a4;
   --danger: #c62828;
@@ -43,6 +45,8 @@
   --control-border: #465267;
   --control-shadow: rgba(0, 0, 0, 0.55);
   --control-hover: rgba(121, 191, 255, 0.14);
+  --language-hover: #294766;
+  --language-hover-border: #79bfff;
   --control-active: rgba(73, 91, 121, 0.3);
   --link: #79bfff;
   --danger: #ff7676;
@@ -68,6 +72,8 @@
     --control-border: #465267;
     --control-shadow: rgba(0, 0, 0, 0.55);
     --control-hover: rgba(121, 191, 255, 0.14);
+    --language-hover: #294766;
+    --language-hover-border: #79bfff;
     --control-active: rgba(73, 91, 121, 0.3);
     --link: #79bfff;
     --danger: #ff7676;
@@ -596,6 +602,12 @@ h1.name {
     sans-serif;
   cursor: pointer;
   list-style: none;
+  transition:
+    color 120ms ease,
+    background-color 120ms ease,
+    border-color 120ms ease,
+    box-shadow 120ms ease,
+    transform 120ms ease;
 }
 
 .language-picker summary::-webkit-details-marker {
@@ -604,8 +616,11 @@ h1.name {
 
 .language-picker summary:hover,
 .language-picker[open] summary {
-  border-color: var(--focus-ring);
-  background: var(--control-hover);
+  border-color: var(--language-hover-border);
+  color: var(--page-text);
+  background: var(--language-hover);
+  box-shadow: 0 5px 16px var(--control-shadow);
+  transform: translateY(-1px);
 }
 
 .language-picker summary:focus-visible {
@@ -643,17 +658,49 @@ h1.name {
   justify-content: space-between;
   min-height: 40px;
   padding: 4px 10px;
+  border: 1px solid transparent;
   border-radius: 8px;
   color: var(--body-text);
   text-decoration: none;
+  transition:
+    color 120ms ease,
+    background-color 120ms ease,
+    box-shadow 120ms ease;
+}
+
+.language-picker__menu a[aria-current='page'] {
+  color: var(--page-text);
+  background: var(--control-hover);
+  font-weight: 700;
 }
 
 .language-picker__menu a:hover,
 .language-picker__menu a:focus-visible,
-.language-picker__menu a[aria-current='page'] {
+.language-picker__menu a[aria-current='page']:hover,
+.language-picker__menu a[aria-current='page']:focus-visible {
+  border-color: var(--language-hover-border);
   color: var(--page-text);
-  background: var(--control-hover);
+  background: var(--language-hover);
+  box-shadow: inset 4px 0 0 var(--focus-ring);
   outline: none;
+}
+
+.language-picker__label {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+}
+
+.language-picker__flag {
+  width: 1.35em;
+  font-size: 18px;
+  line-height: 1;
+  text-align: center;
+}
+
+.language-picker__check {
+  color: var(--success);
+  font-weight: 700;
 }
 
 .preference-controls {

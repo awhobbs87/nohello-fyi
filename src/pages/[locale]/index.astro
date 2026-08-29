@@ -214,7 +214,12 @@ const usConversation =
         <span class="language-label">{t('footer.languages')}</span>
         <details class="language-picker">
           <summary>
-            <span>{currentLocale.name}</span>
+            <span class="language-picker__label">
+              <span class="language-picker__flag" aria-hidden="true">
+                {currentLocale.flag}
+              </span>
+              <span>{currentLocale.name}</span>
+            </span>
             <span class="language-picker__chevron" aria-hidden="true">⌃</span>
           </summary>
           <nav class="language-picker__menu" aria-label={t('footer.languages')}>
@@ -230,9 +235,16 @@ const usConversation =
                     otherLocale.path === locale ? 'page' : undefined
                   }
                 >
-                  {otherLocale.name}
+                  <span class="language-picker__label">
+                    <span class="language-picker__flag" aria-hidden="true">
+                      {otherLocale.flag}
+                    </span>
+                    <span>{otherLocale.name}</span>
+                  </span>
                   {otherLocale.path === locale && (
-                    <span aria-hidden="true">✓</span>
+                    <span class="language-picker__check" aria-hidden="true">
+                      ✓
+                    </span>
                   )}
                 </a>
               ))

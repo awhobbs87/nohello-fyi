@@ -121,12 +121,38 @@ test('uses system theme and a ghost flag control on mobile', async ({
 test('changes locale from the footer language menu', async ({ page }) => {
   await page.goto(`${BASE_URL}en/`);
   const languagePicker = page.locator('.language-picker');
+  const languageTrigger = languagePicker.locator('summary');
 
-  await expect(languagePicker.locator('summary')).toContainText('English');
-  await languagePicker.locator('summary').click();
+  await expect(languageTrigger).toContainText('English');
+  await expect(languageTrigger).toContainText('🇬🇧');
+  const restingTriggerBackground = await languageTrigger.evaluate(
+    (element) => getComputedStyle(element).backgroundColor,
+  );
+  await languageTrigger.hover();
+  await expect(languageTrigger).not.toHaveCSS(
+    'background-color',
+    restingTriggerBackground,
+  );
+  await languageTrigger.click();
   await expect(languagePicker).toHaveAttribute('open', '');
   await expect(languagePicker.locator('nav')).toHaveCSS('bottom', '52px');
-  await page.getByRole('link', { name: 'Français' }).click();
+  const frenchOption = page.getByRole('link', { name: 'Français' });
+  await expect(frenchOption).toContainText('🇫🇷');
+
+  const restingBackground = await frenchOption.evaluate(
+    (element) => getComputedStyle(element).backgroundColor,
+  );
+  const restingBorder = await frenchOption.evaluate(
+    (element) => getComputedStyle(element).borderTopColor,
+  );
+  await frenchOption.hover();
+  await expect(frenchOption).not.toHaveCSS(
+    'background-color',
+    restingBackground,
+  );
+  await expect(frenchOption).not.toHaveCSS('border-top-color', restingBorder);
+
+  await frenchOption.click();
   await expect(page).toHaveURL(`${BASE_URL}fr/`);
   await expect(page.locator('.language-picker summary')).toContainText(
     'Français',
