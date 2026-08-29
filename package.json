@@ -36,6 +36,7 @@
     "pre-commit": "pnpm precommit"
   },
   "dependencies": {
+    "@phosphor-icons/web": "2.1.2",
     "astro": "7.2.9",
     "cookie": "2.0.1",
     "gettext-parser": "9.1.1",

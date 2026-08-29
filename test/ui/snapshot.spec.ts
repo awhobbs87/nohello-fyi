@@ -19,14 +19,17 @@ test('cycles and persists system, light, and dark themes', async ({ page }) => {
 
   await expect(page.locator('html')).toHaveAttribute('data-theme', 'system');
   await expect(toggle).toContainText('System');
+  await expect(toggle.locator('[data-theme-icon]')).toHaveClass(/ph-monitor/);
 
   await toggle.click();
   await expect(page.locator('html')).toHaveAttribute('data-theme', 'light');
   await expect(toggle).toContainText('Light');
+  await expect(toggle.locator('[data-theme-icon]')).toHaveClass(/ph-sun/);
 
   await toggle.click();
   await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
   await expect(toggle).toContainText('Dark');
+  await expect(toggle.locator('[data-theme-icon]')).toHaveClass(/ph-moon/);
 
   await page.reload();
   await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');

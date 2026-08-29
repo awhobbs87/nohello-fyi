@@ -2,11 +2,12 @@
   class="preference-toggle theme-toggle"
   type="button"
   data-theme-toggle
-  aria-label="Theme: system. Change theme"
-  title="Theme: system"
+  aria-label="Theme: System. Switch to Light"
+  title="Theme: System — switch to Light"
 >
-  <span class="theme-toggle__icon" data-theme-icon aria-hidden="true">◐</span>
-  <span data-theme-label>System</span>
+  <i class="ph ph-monitor theme-toggle__icon" data-theme-icon aria-hidden="true"
+  ></i>
+  <span class="theme-toggle__label" data-theme-label>System</span>
 </button>
 
 <script>
@@ -18,10 +19,10 @@
     light: 'Light',
     dark: 'Dark',
   };
-  const icons: Record<Theme, string> = {
-    system: '◐',
-    light: '☀',
-    dark: '☾',
+  const iconClasses: Record<Theme, string> = {
+    system: 'ph-monitor',
+    light: 'ph-sun',
+    dark: 'ph-moon',
   };
 
   const toggle = document.querySelector<HTMLButtonElement>(
@@ -45,12 +46,14 @@
     if (toggle == null) return;
 
     const label = labels[theme];
+    const nextTheme = themes[(themes.indexOf(theme) + 1) % themes.length]!;
+    const nextLabel = labels[nextTheme];
     toggle.querySelector<HTMLElement>('[data-theme-label]')!.textContent =
       label;
-    toggle.querySelector<HTMLElement>('[data-theme-icon]')!.textContent =
-      icons[theme];
-    toggle.ariaLabel = `Theme: ${label.toLowerCase()}. Change theme`;
-    toggle.title = `Theme: ${label.toLowerCase()}`;
+    toggle.querySelector<HTMLElement>('[data-theme-icon]')!.className =
+      `ph ${iconClasses[theme]} theme-toggle__icon`;
+    toggle.ariaLabel = `Theme: ${label}. Switch to ${nextLabel}`;
+    toggle.title = `Theme: ${label} — switch to ${nextLabel}`;
   }
 
   function applyThemeForViewport() {
