@@ -19,6 +19,7 @@ uses PO translation catalogs, pnpm, TypeScript, Vitest, and Playwright.
   clean Astro type check.
 - `pnpm test:unit`: run Vitest.
 - `pnpm test:ui`: build the site and run Playwright.
+- `pnpm test:ui:update`: rebuild and intentionally update visual baselines.
 - `pnpm build`: generate the static site in `build/`.
 
 Run `pnpm lint`, `pnpm test:unit`, and the relevant browser tests before
@@ -54,6 +55,8 @@ Do not edit generated files in `build/`, `.astro/`, `test-results/`, or
 - Keep theme and office-mode preferences accessible, keyboard operable, and
   responsive. Mobile theme selection follows the system preference.
 - Maintain WCAG AA contrast and a minimum 44px interactive target on mobile.
+- Keep Phosphor installed as the preferred icon set. Inline the small number of
+  icons used on the public page so the full icon webfont is not shipped.
 
 ## Git hygiene
 

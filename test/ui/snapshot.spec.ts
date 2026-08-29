@@ -19,17 +19,17 @@ test('cycles and persists system, light, and dark themes', async ({ page }) => {
 
   await expect(page.locator('html')).toHaveAttribute('data-theme', 'system');
   await expect(toggle).toContainText('System');
-  await expect(toggle.locator('[data-theme-icon]')).toHaveClass(/ph-monitor/);
+  await expect(toggle.locator('[data-theme-icon="system"]')).toBeVisible();
 
   await toggle.click();
   await expect(page.locator('html')).toHaveAttribute('data-theme', 'light');
   await expect(toggle).toContainText('Light');
-  await expect(toggle.locator('[data-theme-icon]')).toHaveClass(/ph-sun/);
+  await expect(toggle.locator('[data-theme-icon="light"]')).toBeVisible();
 
   await toggle.click();
   await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
   await expect(toggle).toContainText('Dark');
-  await expect(toggle.locator('[data-theme-icon]')).toHaveClass(/ph-moon/);
+  await expect(toggle.locator('[data-theme-icon="dark"]')).toBeVisible();
 
   await page.reload();
   await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
@@ -37,6 +37,109 @@ test('cycles and persists system, light, and dark themes', async ({ page }) => {
 
   await toggle.click();
   await expect(page.locator('html')).toHaveAttribute('data-theme', 'system');
+});
+
+test('self-hosts Lato and uses a responsive content grid', async ({ page }) => {
+  await page.goto(`${BASE_URL}en/`);
+  await page.evaluate(() => document.fonts.ready);
+
+  await expect(page.locator('body')).toHaveCSS('font-family', /^Lato,/);
+  expect(await page.evaluate(() => document.fonts.check('400 16px Lato'))).toBe(
+    true,
+  );
+
+  const fontOrigins = await page.evaluate(() =>
+    performance
+      .getEntriesByType('resource')
+      .map((entry) => entry.name)
+      .filter((name) => /lato.*\.woff2?(?:\?|$)/i.test(name))
+      .map((name) => new URL(name).origin),
+  );
+  expect(fontOrigins.length).toBeGreaterThan(0);
+  expect(new Set(fontOrigins)).toEqual(new Set([new URL(BASE_URL).origin]));
+
+  const section = page.locator('.container.nonos');
+  await expect(section).toHaveCSS('display', 'grid');
+  await expect(section).toHaveCSS(
+    'grid-template-columns',
+    /\d+(?:\.\d+)?px \d+(?:\.\d+)?px/,
+  );
+
+  await page.setViewportSize({ width: 390, height: 844 });
+  await expect(section).toHaveCSS('grid-template-columns', '358px');
+});
+
+test('publishes search result icon, preview, and description metadata', async ({
+  page,
+  request,
+}) => {
+  await page.goto(BASE_URL);
+
+  const description =
+    'A light-hearted guide to better chat etiquette: ask your question in the first message instead of sending only hello.';
+  await expect(page.locator('meta[name="description"]')).toHaveAttribute(
+    'content',
+    description,
+  );
+  await expect(page.locator('meta[name="robots"]')).toHaveAttribute(
+    'content',
+    'index, follow, max-image-preview:large',
+  );
+  await expect(page.locator('meta[property="og:image:width"]')).toHaveAttribute(
+    'content',
+    '500',
+  );
+  await expect(
+    page.locator('meta[property="og:image:height"]'),
+  ).toHaveAttribute('content', '500');
+  await expect(page.locator('meta[name="twitter:card"]')).toHaveAttribute(
+    'content',
+    'summary_large_image',
+  );
+
+  const icon = page.locator('link[rel="icon"]');
+  await expect(icon).toHaveAttribute('sizes', '180x180');
+  const iconUrl = await icon.getAttribute('href');
+  expect((await request.get(iconUrl!)).ok()).toBe(true);
+
+  const structuredData = JSON.parse(
+    (await page.locator('script[type="application/ld+json"]').textContent())!,
+  );
+  expect(structuredData).toMatchObject({
+    '@type': 'WebPage',
+    name: 'no hello',
+    description,
+    image: { width: 500, height: 500 },
+  });
+});
+
+test('does not ship the Phosphor icon font for inline theme icons', async ({
+  page,
+}) => {
+  await page.goto(`${BASE_URL}en/`);
+
+  const phosphorResources = await page.evaluate(() =>
+    performance
+      .getEntriesByType('resource')
+      .map((entry) => entry.name)
+      .filter((name) => /phosphor|regular\.woff/i.test(name)),
+  );
+  expect(phosphorResources).toEqual([]);
+});
+
+test('respects reduced motion for typing and the easter egg', async ({
+  browser,
+}) => {
+  const context = await browser.newContext({ reducedMotion: 'reduce' });
+  const page = await context.newPage();
+  await page.goto(`${BASE_URL}en/`);
+
+  await expect(page.locator('#strike')).toHaveText('hello');
+  await expect(page.locator('.typed-cursor')).toHaveCount(0);
+  await page.keyboard.type('hello');
+  await expect(page.locator('body')).toHaveCSS('background-image', 'none');
+
+  await context.close();
 });
 
 test('dark theme color tokens meet WCAG AA contrast', async ({ page }) => {
@@ -83,7 +186,7 @@ test('dark theme color tokens meet WCAG AA contrast', async ({ page }) => {
   for (const ratio of Object.values(ratios)) expect(ratio).toBeGreaterThan(4.5);
 });
 
-test('uses system theme and a ghost flag control on mobile', async ({
+test('uses system theme and a labelled office control on mobile', async ({
   page,
 }) => {
   await page.goto(`${BASE_URL}en/`);
@@ -95,11 +198,13 @@ test('uses system theme and a ghost flag control on mobile', async ({
   await page.setViewportSize({ width: 390, height: 844 });
   await page.reload();
 
-  const officeToggle = page.getByRole('button', { name: /office:/i });
+  const officeToggle = page.getByRole('button', { name: /the office/i });
   await expect(page.locator('html')).toHaveAttribute('data-theme', 'system');
   await expect(themeToggle).toBeHidden();
   await expect(officeToggle).toBeVisible();
-  await expect(officeToggle.locator('[data-office-label]')).toBeHidden();
+  await expect(officeToggle.locator('[data-office-label]')).toBeVisible();
+  await expect(officeToggle).toContainText('The Office UK');
+  expect((await officeToggle.boundingBox())!.width).toBeGreaterThan(120);
   await expect(page.locator('.preference-controls')).toHaveCSS(
     'position',
     'static',
@@ -110,7 +215,7 @@ test('uses system theme and a ghost flag control on mobile', async ({
   );
 
   await officeToggle.click();
-  await expect(officeToggle).toContainText('🇺🇸');
+  await expect(officeToggle).toContainText('🇺🇸The Office US');
 
   await expect(page.locator('.slack').first()).toHaveCSS('display', 'grid');
   const avatarBox = await page
@@ -164,16 +269,16 @@ test('changes locale from the footer language menu', async ({ page }) => {
 
 test('switches and persists UK and US office characters', async ({ page }) => {
   await page.goto(`${BASE_URL}en/`);
-  const toggle = page.getByRole('button', { name: /office:/i });
+  const toggle = page.getByRole('button', { name: /the office/i });
 
   await expect(page.locator('html')).toHaveAttribute('data-office', 'uk');
-  await expect(toggle).toContainText('🇬🇧UK');
+  await expect(toggle).toContainText('🇬🇧The Office UK');
   await expect(page.getByText('Keith', { exact: true }).first()).toBeVisible();
   await expect(page.getByText('Kevin', { exact: true }).first()).toBeHidden();
 
   await toggle.click();
   await expect(page.locator('html')).toHaveAttribute('data-office', 'us');
-  await expect(toggle).toContainText('🇺🇸US');
+  await expect(toggle).toContainText('🇺🇸The Office US');
   await expect(page.getByText('Kevin', { exact: true }).first()).toBeVisible();
   await expect(page.getByText('Keith', { exact: true }).first()).toBeHidden();
   await expect(page.getByAltText("Kevin's chat avatar").first()).toBeVisible();
@@ -195,7 +300,7 @@ test('switches and persists UK and US office characters', async ({ page }) => {
 
   await page.reload();
   await expect(page.locator('html')).toHaveAttribute('data-office', 'us');
-  await expect(toggle).toContainText('US');
+  await expect(toggle).toContainText('The Office US');
 
   await toggle.click();
   await expect(page.locator('html')).toHaveAttribute('data-office', 'uk');
@@ -208,6 +313,58 @@ test('frames the guidance as a light-hearted nudge', async ({ page }) => {
     page.getByText(/light-hearted nudge, not a rulebook/),
   ).toBeVisible();
   await expect(page.getByText(/assume good intent, be kind/)).toBeVisible();
+});
+
+test('uses a compact, structured footer across viewports', async ({ page }) => {
+  await page.goto(`${BASE_URL}en/`);
+
+  const footer = page.locator('footer');
+  const footerBottom = page.locator('.footer-bottom');
+  await expect(footer).toHaveCSS('padding-top', '48px');
+  await expect(page.locator('.footer-note')).toHaveCSS('font-size', '20px');
+  await expect(footerBottom).toHaveCSS('display', 'grid');
+  await expect(footerBottom).toHaveCSS(
+    'grid-template-columns',
+    /\d+(?:\.\d+)?px 240px/,
+  );
+
+  await page.setViewportSize({ width: 390, height: 844 });
+  await expect(footer).toHaveCSS('padding-top', '40px');
+  await expect(page.locator('.footer-note')).toHaveCSS('font-size', '18px');
+  await expect(footerBottom).toHaveCSS('grid-template-columns', '358px');
+});
+
+test('serves a localized custom 404 page', async ({ browser }) => {
+  const context = await browser.newContext({ locale: 'de' });
+  const page = await context.newPage();
+  const response = await page.goto(`${BASE_URL}missing-conversation/`);
+
+  expect(response?.status()).toBe(404);
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText(
+    'Seite nicht gefunden',
+  );
+  await expect(page.locator('html')).toHaveAttribute('lang', 'de');
+  await expect(page.locator('meta[name="robots"]')).toHaveAttribute(
+    'content',
+    'noindex, follow',
+  );
+  await expect(page.getByRole('link', { name: /no hello/i })).toHaveAttribute(
+    'href',
+    '/de/',
+  );
+
+  await context.close();
+});
+
+test('publishes a sitemap without the error page', async ({ request }) => {
+  const index = await request.get(`${BASE_URL}sitemap-index.xml`);
+  expect(index.ok()).toBe(true);
+
+  const sitemap = await request.get(`${BASE_URL}sitemap-0.xml`);
+  const body = await sitemap.text();
+  expect(body).toContain('<loc>https://nohello.net/</loc>');
+  expect(body).toContain('<loc>https://nohello.net/de/</loc>');
+  expect(body).not.toContain('/404/');
 });
 
 test.describe('index snapshots', () => {

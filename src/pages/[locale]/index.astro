@@ -28,6 +28,10 @@ const lang = locale.split('-')[0] ?? locale;
 const langDir = ['fa', 'he'].includes(locale) ? 'rtl' : 'ltr';
 const currentYear = new Date().getFullYear().toString();
 const currentYearMarkup = `<span data-current-year>${currentYear}</span>`;
+const description =
+  locale === 'en'
+    ? 'A light-hearted guide to better chat etiquette: ask your question in the first message instead of sending only hello.'
+    : t('header.subtitle');
 const officeCharacters = {
   bad: {
     usAvatar: kevin,
@@ -81,7 +85,13 @@ const usConversation =
       };
 ---
 
-<Layout lang={lang} langDir={langDir} subtitle={t('header.subtitle')}>
+<Layout
+  lang={lang}
+  langDir={langDir}
+  subtitle={t('header.subtitle')}
+  description={description}
+  canonicalPath={locale === 'en' ? '/' : undefined}
+>
   <div id="wholesite">
     <main>
       <div class="container">
@@ -206,52 +216,68 @@ const usConversation =
     </main>
 
     <footer>
-      <p set:html={markdown('footer.note')} />
-      <p set:html={markdown('footer.warning')} />
-      <p set:html={markdown('footer.thanks')} />
+      <div class="footer-inner">
+        <div class="footer-message">
+          <p class="footer-note" set:html={markdown('footer.note')} />
+          <p class="footer-guidance" set:html={markdown('footer.warning')} />
+        </div>
 
-      <section class="other-languages">
-        <span class="language-label">{t('footer.languages')}</span>
-        <details class="language-picker">
-          <summary>
-            <span class="language-picker__label">
-              <span class="language-picker__flag" aria-hidden="true">
-                {currentLocale.flag}
-              </span>
-              <span>{currentLocale.name}</span>
-            </span>
-            <span class="language-picker__chevron" aria-hidden="true">⌃</span>
-          </summary>
-          <nav class="language-picker__menu" aria-label={t('footer.languages')}>
-            {
-              locales.map((otherLocale) => (
-                <a
-                  href={`/${otherLocale.path}/`}
-                  class="lang-chooser"
-                  data-lang={otherLocale.path}
-                  lang={otherLocale.path}
-                  hreflang={otherLocale.path}
-                  aria-current={
-                    otherLocale.path === locale ? 'page' : undefined
-                  }
-                >
-                  <span class="language-picker__label">
-                    <span class="language-picker__flag" aria-hidden="true">
-                      {otherLocale.flag}
-                    </span>
-                    <span>{otherLocale.name}</span>
+        <div class="footer-bottom">
+          <p class="footer-credit" set:html={markdown('footer.thanks')} />
+
+          <section class="other-languages">
+            <span class="language-label">{t('footer.languages')}</span>
+            <details class="language-picker">
+              <summary>
+                <span class="language-picker__label">
+                  <span class="language-picker__flag" aria-hidden="true">
+                    {currentLocale.flag}
                   </span>
-                  {otherLocale.path === locale && (
-                    <span class="language-picker__check" aria-hidden="true">
-                      ✓
-                    </span>
-                  )}
-                </a>
-              ))
-            }
-          </nav>
-        </details>
-      </section>
+                  <span>{currentLocale.name}</span>
+                </span>
+                <span class="language-picker__chevron" aria-hidden="true"
+                  >⌃</span
+                >
+              </summary>
+              <nav
+                class="language-picker__menu"
+                aria-label={t('footer.languages')}
+              >
+                {
+                  locales.map((otherLocale) => (
+                    <a
+                      href={
+                        otherLocale.path === 'en'
+                          ? '/'
+                          : `/${otherLocale.path}/`
+                      }
+                      class="lang-chooser"
+                      data-lang={otherLocale.path}
+                      lang={otherLocale.path}
+                      hreflang={otherLocale.path}
+                      aria-current={
+                        otherLocale.path === locale ? 'page' : undefined
+                      }
+                    >
+                      <span class="language-picker__label">
+                        <span class="language-picker__flag" aria-hidden="true">
+                          {otherLocale.flag}
+                        </span>
+                        <span>{otherLocale.name}</span>
+                      </span>
+                      {otherLocale.path === locale && (
+                        <span class="language-picker__check" aria-hidden="true">
+                          ✓
+                        </span>
+                      )}
+                    </a>
+                  ))
+                }
+              </nav>
+            </details>
+          </section>
+        </div>
+      </div>
     </footer>
   </div>
 
@@ -274,6 +300,8 @@ const usConversation =
 <script>
   import Typed from 'typed.js';
 
+  const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)');
+
   const currentYear = new Date().getFullYear().toString();
   for (const year of document.querySelectorAll<HTMLElement>(
     '[data-current-year]',
@@ -282,7 +310,7 @@ const usConversation =
   }
 
   const strike = document.querySelector('#strike');
-  if (strike != null) {
+  if (strike != null && !reducedMotion.matches) {
     const typed = new Typed(strike, {
       strings: [
         'hello',
@@ -353,6 +381,8 @@ const usConversation =
   let position = 0;
 
   function activateWhy() {
+    if (reducedMotion.matches) return;
+
     const preload = document.querySelector<HTMLImageElement>('#preloadimg');
     if (preload != null) {
       document.body.style.backgroundImage = `url("${preload.src}")`;
@@ -390,6 +420,8 @@ const usConversation =
   }
 
   document.addEventListener('keydown', (event) => {
+    if (reducedMotion.matches) return;
+
     if (event.key !== sequence[position]) {
       position = 0;
       return;

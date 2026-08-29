@@ -1,0 +1,72 @@
+---
+import notFound from '../_data/notFound.json';
+import locales from '../_data/locales.json';
+import Layout from '../layouts/Layout.astro';
+
+const fallback = locales[0]?.path ?? 'en';
+const copy = notFound[fallback as keyof typeof notFound];
+---
+
+<Layout
+  lang="en"
+  langDir="ltr"
+  title="404"
+  subtitle={copy.body}
+  canonicalPath="/404/"
+  showOfficeToggle={false}
+  robots="noindex, follow"
+>
+  <main
+    class="not-found"
+    data-not-found
+    data-languages={JSON.stringify(locales.map(({ path }) => path))}
+    data-copy={JSON.stringify(notFound)}
+    data-fallback={fallback}
+  >
+    <p class="not-found__code" aria-hidden="true">404</p>
+    <h1 data-not-found-title>{copy.title}</h1>
+    <p data-not-found-body>{copy.body}</p>
+    <a class="not-found__link" data-not-found-link href="/">
+      <span aria-hidden="true">←</span>
+      <span data-not-found-home>{copy.home}</span>
+    </a>
+  </main>
+</Layout>
+
+<script>
+  import { languageMatcher } from '../lib/languageMatcher';
+
+  type NotFoundCopy = Record<
+    string,
+    { title: string; body: string; home: string }
+  >;
+
+  const page = document.querySelector<HTMLElement>('[data-not-found]');
+  const languages = JSON.parse(page?.dataset.languages ?? '[]') as string[];
+  const translations = JSON.parse(page?.dataset.copy ?? '{}') as NotFoundCopy;
+  const fallback = page?.dataset.fallback ?? languages[0] ?? 'en';
+  const locale = languageMatcher(
+    languages,
+    fallback,
+    localStorage.getItem('lang'),
+    navigator.language,
+  ).slice(1);
+  const copy = translations[locale] ?? translations[fallback];
+
+  if (copy != null) {
+    document.documentElement.lang = locale.split('-')[0] ?? locale;
+    document.documentElement.dir = ['fa', 'he'].includes(locale)
+      ? 'rtl'
+      : 'ltr';
+    document.querySelector<HTMLElement>('[data-not-found-title]')!.textContent =
+      copy.title;
+    document.querySelector<HTMLElement>('[data-not-found-body]')!.textContent =
+      copy.body;
+    document.querySelector<HTMLElement>('[data-not-found-home]')!.textContent =
+      copy.home;
+    document
+      .querySelector<HTMLAnchorElement>('[data-not-found-link]')!
+      .setAttribute('href', locale === fallback ? '/' : `/${locale}/`);
+    document.title = `404 - ${copy.title} - no hello`;
+  }
+</script>

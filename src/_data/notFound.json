@@ -1,0 +1,92 @@
+{
+  "en": {
+    "title": "Page not found",
+    "body": "That conversation seems to have moved somewhere else.",
+    "home": "Back to no hello"
+  },
+  "cs": {
+    "title": "Stránka nenalezena",
+    "body": "Zdá se, že se tato konverzace přesunula jinam.",
+    "home": "Zpět na no hello"
+  },
+  "de": {
+    "title": "Seite nicht gefunden",
+    "body": "Diese Unterhaltung scheint woanders weiterzugehen.",
+    "home": "Zurück zu no hello"
+  },
+  "es": {
+    "title": "Página no encontrada",
+    "body": "Parece que esta conversación se ha trasladado a otro lugar.",
+    "home": "Volver a no hello"
+  },
+  "fa": {
+    "title": "صفحه پیدا نشد",
+    "body": "به نظر می‌رسد این گفتگو به جای دیگری منتقل شده است.",
+    "home": "بازگشت به no hello"
+  },
+  "fr": {
+    "title": "Page introuvable",
+    "body": "Cette conversation semble avoir déménagé ailleurs.",
+    "home": "Retour à no hello"
+  },
+  "he": {
+    "title": "הדף לא נמצא",
+    "body": "נראה שהשיחה הזו עברה למקום אחר.",
+    "home": "חזרה אל no hello"
+  },
+  "id": {
+    "title": "Halaman tidak ditemukan",
+    "body": "Sepertinya percakapan ini telah pindah ke tempat lain.",
+    "home": "Kembali ke no hello"
+  },
+  "it": {
+    "title": "Pagina non trovata",
+    "body": "Sembra che questa conversazione si sia spostata altrove.",
+    "home": "Torna a no hello"
+  },
+  "pl": {
+    "title": "Nie znaleziono strony",
+    "body": "Wygląda na to, że ta rozmowa przeniosła się gdzie indziej.",
+    "home": "Wróć do no hello"
+  },
+  "pt": {
+    "title": "Página não encontrada",
+    "body": "Parece que esta conversa mudou para outro lugar.",
+    "home": "Voltar ao no hello"
+  },
+  "pt-br": {
+    "title": "Página não encontrada",
+    "body": "Parece que esta conversa foi para outro lugar.",
+    "home": "Voltar ao no hello"
+  },
+  "ru": {
+    "title": "Страница не найдена",
+    "body": "Похоже, этот разговор переместился в другое место.",
+    "home": "Вернуться на no hello"
+  },
+  "sv": {
+    "title": "Sidan hittades inte",
+    "body": "Det verkar som att den här konversationen har flyttat någon annanstans.",
+    "home": "Tillbaka till no hello"
+  },
+  "tr": {
+    "title": "Sayfa bulunamadı",
+    "body": "Görünüşe göre bu konuşma başka bir yere taşınmış.",
+    "home": "no hello'ya dön"
+  },
+  "uk": {
+    "title": "Сторінку не знайдено",
+    "body": "Схоже, ця розмова перемістилася в інше місце.",
+    "home": "Повернутися до no hello"
+  },
+  "vi": {
+    "title": "Không tìm thấy trang",
+    "body": "Có vẻ như cuộc trò chuyện này đã chuyển sang nơi khác.",
+    "home": "Quay lại no hello"
+  },
+  "zh-cn": {
+    "title": "未找到页面",
+    "body": "这个对话似乎已转移到其他地方。",
+    "home": "返回 no hello"
+  }
+}

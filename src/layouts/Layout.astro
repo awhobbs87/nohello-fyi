@@ -11,14 +11,47 @@ interface Props {
   lang: string;
   langDir: 'ltr' | 'rtl';
   subtitle: string;
+  description?: string;
   title?: string;
+  canonicalPath?: string;
+  showOfficeToggle?: boolean;
+  robots?: string;
 }
 
-const { lang, langDir, subtitle, title } = Astro.props;
+const {
+  lang,
+  langDir,
+  subtitle,
+  description = subtitle,
+  title,
+  canonicalPath,
+  showOfficeToggle = true,
+  robots = 'index, follow, max-image-preview:large',
+} = Astro.props;
 const fullTitle = [title, 'no hello'].filter(Boolean).join(' - ');
 const site = Astro.site ?? new URL('https://nohello.net');
-const canonicalUrl = new URL(Astro.url.pathname, site);
+const canonicalUrl = new URL(canonicalPath ?? Astro.url.pathname, site);
 const socialImageUrl = new URL(socialImage.src, site);
+const faviconUrl = new URL(favicon.src, site);
+const socialImageAlt = 'no hello — please include your question in chat';
+const structuredData = {
+  '@context': 'https://schema.org',
+  '@type': 'WebPage',
+  name: fullTitle,
+  description,
+  url: canonicalUrl.href,
+  image: {
+    '@type': 'ImageObject',
+    url: socialImageUrl.href,
+    width: 500,
+    height: 500,
+  },
+  isPartOf: {
+    '@type': 'WebSite',
+    name: 'no hello',
+    url: site.href,
+  },
+};
 ---
 
 <!doctype html>
@@ -28,33 +61,47 @@ const socialImageUrl = new URL(socialImage.src, site);
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>{fullTitle}</title>
     <meta name="title" content={fullTitle} />
-    <meta name="description" content={subtitle} />
+    <meta name="description" content={description} />
+    <meta name="robots" content={robots} />
     <link rel="canonical" href={canonicalUrl} />
 
     <meta property="og:type" content="website" />
     <meta property="og:url" content={canonicalUrl} />
     <meta property="og:title" content={fullTitle} />
-    <meta property="og:description" content={subtitle} />
+    <meta property="og:site_name" content="no hello" />
+    <meta property="og:description" content={description} />
     <meta property="og:image" content={socialImageUrl} />
+    <meta property="og:image:type" content="image/png" />
+    <meta property="og:image:width" content="500" />
+    <meta property="og:image:height" content="500" />
+    <meta property="og:image:alt" content={socialImageAlt} />
 
-    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content={fullTitle} />
-    <meta name="twitter:description" content={subtitle} />
+    <meta name="twitter:description" content={description} />
     <meta name="twitter:image" content={socialImageUrl} />
+    <meta name="twitter:image:alt" content={socialImageAlt} />
 
-    <link rel="apple-touch-icon" href={appleTouchIcon.src} />
-    <link rel="icon" href={favicon.src} type="image/png" />
+    <link rel="apple-touch-icon" sizes="180x180" href={appleTouchIcon.src} />
+    <link rel="icon" sizes="180x180" href={faviconUrl} type="image/png" />
+    <link rel="sitemap" href="/sitemap-index.xml" />
 
     {
       locales.map((locale) => (
         <link
           rel="alternate"
           hreflang={locale.path}
-          href={new URL(`/${locale.path}/`, site)}
+          href={new URL(locale.path === 'en' ? '/' : `/${locale.path}/`, site)}
         />
       ))
     }
     <link rel="alternate" hreflang="x-default" href={site} />
+
+    <script
+      type="application/ld+json"
+      is:inline
+      set:html={JSON.stringify(structuredData)}
+    />
 
     <script is:inline>
       (() => {
@@ -74,7 +121,7 @@ const socialImageUrl = new URL(socialImage.src, site);
   </head>
   <body>
     <div class="preference-controls">
-      <OfficeToggle />
+      {showOfficeToggle && <OfficeToggle />}
       <ThemeToggle />
     </div>
     <slot />

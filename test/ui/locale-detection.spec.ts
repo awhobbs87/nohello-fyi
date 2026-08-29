@@ -8,7 +8,10 @@ test.describe('locale detection', () => {
     test('falls back to base locale from unknown', async ({ page }) => {
       await page.goto(BASE_URL);
 
-      expect(page.url()).toBe(url('en/'));
+      expect(page.url()).toBe(BASE_URL);
+      await expect(page.getByRole('heading', { level: 1 })).toContainText(
+        'no hello',
+      );
     });
   });
 
@@ -26,7 +29,7 @@ test.describe('locale detection', () => {
     test('base locale', async ({ page }) => {
       await page.goto(BASE_URL);
 
-      expect(page.url()).toBe(url('en/'));
+      expect(page.url()).toBe(BASE_URL);
     });
   });
 
@@ -35,7 +38,7 @@ test.describe('locale detection', () => {
     test('base locale', async ({ page }) => {
       await page.goto(BASE_URL);
 
-      expect(page.url()).toBe(url('en/'));
+      expect(page.url()).toBe(BASE_URL);
     });
   });
 
@@ -53,13 +56,13 @@ test.describe('locale detection', () => {
     test('base locale', async ({ page }) => {
       await page.goto(BASE_URL);
 
-      expect(page.url()).toBe(url('en/'));
+      expect(page.url()).toBe(BASE_URL);
     });
   });
 
   test('remembers override setting', async ({ page }) => {
     await page.goto(BASE_URL);
-    expect(page.url()).toBe(url('en/'));
+    expect(page.url()).toBe(BASE_URL);
 
     await page.locator('.language-picker summary').click();
     await page.getByRole('link', { name: 'Deutsch' }).click();
@@ -73,7 +76,7 @@ test.describe('locale detection', () => {
     page,
   }) => {
     await page.goto(BASE_URL);
-    expect(page.url()).toBe(url('en/'));
+    expect(page.url()).toBe(BASE_URL);
 
     await page.locator('.language-picker summary').click();
     await page.getByRole('link', { name: 'Deutsch' }).click();

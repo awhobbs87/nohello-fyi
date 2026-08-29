@@ -1,23 +1,17 @@
 ---
-import Layout from '../layouts/Layout.astro';
 import locales from '../_data/locales.json';
-import { loadTranslations } from '../lib/i18n';
+import LocalizedPage from './[locale]/index.astro';
 
 const fallback = locales[0]?.path ?? 'en';
-const { t } = loadTranslations(fallback);
 ---
 
-<Layout lang="en" langDir="ltr" subtitle={t('header.subtitle')}>
-  <main
-    id="locale-redirect"
-    data-languages={JSON.stringify(locales.map(({ path }) => path))}
-    data-fallback={fallback}
-  >
-    <noscript>
-      <a href={`/${fallback}/`}>Continue to no hello</a>
-    </noscript>
-  </main>
-</Layout>
+<div
+  id="locale-redirect"
+  data-languages={JSON.stringify(locales.map(({ path }) => path))}
+  data-fallback={fallback}
+>
+  <LocalizedPage locale={fallback} />
+</div>
 
 <script>
   import { languageMatcher } from '../lib/languageMatcher';
@@ -33,5 +27,7 @@ const { t } = loadTranslations(fallback);
     navigator.language,
   );
 
-  window.location.replace(`${destination}/`);
+  if (destination !== `/${fallback}`) {
+    window.location.replace(`${destination}/`);
+  }
 </script>

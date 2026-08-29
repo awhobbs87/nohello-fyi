@@ -2,12 +2,12 @@
   class="preference-toggle office-toggle"
   type="button"
   data-office-toggle
-  aria-label="Office: UK. Change office"
-  title="Office: UK"
+  aria-label="The Office UK. Switch to The Office US"
+  title="The Office UK"
 >
   <span class="office-toggle__flag" data-office-flag aria-hidden="true">🇬🇧</span
   >
-  <span data-office-label>UK</span>
+  <span data-office-label>The Office UK</span>
 </button>
 
 <script>
@@ -17,6 +17,10 @@
     '[data-office-toggle]',
   );
   const flags: Record<Office, string> = { uk: '🇬🇧', us: '🇺🇸' };
+  const labels: Record<Office, string> = {
+    uk: 'The Office UK',
+    us: 'The Office US',
+  };
 
   function getOffice(): Office {
     return document.documentElement.dataset.office === 'us' ? 'us' : 'uk';
@@ -25,13 +29,14 @@
   function updateToggle(office: Office) {
     if (toggle == null) return;
 
-    const label = office.toUpperCase();
+    const label = labels[office];
+    const nextOffice: Office = office === 'uk' ? 'us' : 'uk';
     toggle.querySelector<HTMLElement>('[data-office-label]')!.textContent =
       label;
     toggle.querySelector<HTMLElement>('[data-office-flag]')!.textContent =
       flags[office];
-    toggle.ariaLabel = `Office: ${label}. Change office`;
-    toggle.title = `Office: ${label}`;
+    toggle.ariaLabel = `${label}. Switch to ${labels[nextOffice]}`;
+    toggle.title = label;
   }
 
   updateToggle(getOffice());
